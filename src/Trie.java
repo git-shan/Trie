@@ -14,7 +14,10 @@ public class Trie {
         }
         @Override
         public String toString(){
-           return next.toString();
+            StringBuilder res = new StringBuilder();
+            res.append(next.toString());
+            res.append(","+isWord);
+           return res.toString();
         }
     }
     private Node root;
@@ -53,13 +56,52 @@ public class Trie {
         Character c = Character.toLowerCase(word.charAt(chp)); // ignore capital, store in low case
         if (node.next.get(c) == null) {
             node.next.put(c, new Node());
-            if (!node.next.get(c).isWord && chp == word.length() - 1) {
-                node.next.get(c).isWord = true;
-                size++;
-            }
         }
+        if (!node.next.get(c).isWord && chp == word.length() - 1) {
+            node.next.get(c).isWord = true;
+            size++;
+        }
+
         if(chp<word.length()-1) addR(node.next.get(c), word, chp+1 );
     }
+
+    public boolean remove(String word){
+        return remove(root, word,0);
+    }
+    private boolean remove(Node node, String word,int chp){
+        boolean ret ;
+        if (chp==word.length()) {
+            if (!node.next.isEmpty()) {  // has nodes behind
+                if (node.isWord) {
+                    node.isWord = false;   // delete this word by set isWord to false
+                    size--;
+                    return true;           // success
+                } else
+                    return false;        //not a word, is a prefix
+            } else {
+                node.next = null;   // delete this node by set next to null;
+                size--;
+                return true;
+            }
+        }
+        else {
+            Character c = Character.toLowerCase(word.charAt(chp)); // ignore capital, store in low case
+            if (node.next.get(c) != null)
+                ret = remove(node.next.get(c), word, chp + 1);
+            else
+                return false;
+        }
+
+// Post process only be executed after delete a leaf node with word matched,
+        Character c = Character.toLowerCase(word.charAt(chp)); // ignore capital, store in low case
+        if (node.next.get(c).next == null) {
+                node.next.remove(c);
+                if(node.next.isEmpty())
+                    node.next =null;
+            }
+        return ret;
+    }
+
     public boolean match(String word){
        return match(root, word, 0);
     }
@@ -112,8 +154,10 @@ public class Trie {
 
     public void printTrie(){
 //       pTrie.get(0).append("Trie: readable");
-       Character c;
-       StringBuilder s;
+        for(int i=0; i<pTrie.getSize();i++){
+            if(pTrie.get(i).length()!=0)
+                pTrie.get(i).delete(0,pTrie.get(i).length());
+        }
        printTrie(root, 0);
        for(int i=0; i<pTrie.getSize();i++){
            pTrie.get(i).insert(0,"LVL "+i+" :");
@@ -143,7 +187,7 @@ public class Trie {
 
     public static void main(String[] args) {
         // write your code here
-        String [] arrWord = {"see","sea","tom", "tom", "henry", "Gang", "Shan","Jing","Jean","Sam","Ada", "python"};
+        String [] arrWord = {"adam","ada","see","sea","tom", "tom", "henry", "Gang", "Shan","Jing","Jean","Sam","Ada", "python"};
         Trie trie = new Trie();
         for(int i=0;i<arrWord.length;i++){
 //            trie.add(arrWord[i]);
@@ -157,6 +201,19 @@ public class Trie {
         System.out.println(trie.isPrefix("Gan."));
         System.out.println(trie.match("Gan."));
 
+        System.out.println("remove");
+        System.out.println(trie.remove("Ada"));
+        System.out.println(trie);
+        trie.printTrie();
+        System.out.println(trie.remove("gang"));
+        System.out.println(trie);
+        trie.printTrie();
+        System.out.println(trie.remove("jing"));
+        System.out.println(trie);
+        trie.printTrie();
+        System.out.println(trie.remove("jean"));
+        System.out.println(trie);
+        trie.printTrie();
     }
 
 }
