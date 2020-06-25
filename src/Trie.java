@@ -153,7 +153,7 @@ public class Trie {
     }
 
     public void printTrie(){
-//       pTrie.get(0).append("Trie: readable");
+//       clear string array
         for(int i=0; i<pTrie.getSize();i++){
             if(pTrie.get(i).length()!=0)
                 pTrie.get(i).delete(0,pTrie.get(i).length());
@@ -174,9 +174,8 @@ public class Trie {
             pd.append("{| |}\t");
             return;
         }
-        Object [] keys = node.next.keySet().toArray();
         pd.append("{");
-        for(Object k: keys){
+        for(Character k: node.next.keySet()){
            pd.append("|");
            pd.append(k.toString());
            printTrie(node.next.get((Character)k),depth+1);
